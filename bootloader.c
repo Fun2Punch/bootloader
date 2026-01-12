@@ -9,12 +9,84 @@
 
 #include "include/bootloader.h"
 #include "include/paging.h"
-#include "include/fs.h"
 
 #include "include/snapshot.h"
 #include "include/bits.h"
 
 // xor eax, eax | mov eax, cr0 | and eax, 0x7FFFFFFF | cmp eax, 1 je PagingOn(function addr)
+
+EFI_FILE_PROTOCOL *init_fs(IN EFI_HANDLE image_handle)
+{
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *simple_fs = NULL;
+  EFI_LOADED_IMAGE_PROTOCOL *loaded_img = NULL;
+  EFI_FILE_PROTOCOL *root = NULL;
+  EFI_STATUS status;
+
+  status = gBS->HandleProtocol(image_handle, &gEfiLoadedImageProtocolGuid, &loaded_img);
+  if (EFI_ERROR(status)) {
+    Print(L"Failed to HandleProtocol = %r\r\n", status);
+  }
+
+  status = gBS->HandleProtocol(loaded_img->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, &simple_fs);
+  if (EFI_ERROR(status)) {
+    Print(L"Failed to Simple file system protocol = %r\r\n", status);
+  }
+
+  status = simple_fs->OpenVolume(simple_fs, &root);
+  if (EFI_ERROR(status)) {
+    Print(L"Faild to OpenVolume = %r\r\n", status);
+  }
+
+  return root;
+}
+
+EFI_STATUS EFIAPI load_img(IN EFI_FILE_PROTOCOL *root, IN CHAR16 *img_name)
+{
+  EFI_STATUS status = EFI_SUCCESS;
+  EFI_FILE_PROTOCOL *vm_img;
+  UINTN buf_size, *vm_img_buf = NULL;
+
+  status = root->Open(root, &vm_img, img_name, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
+  if (EFI_ERROR(status)) {
+    Print(L"Failed to root fs open = %r\r\n", status);
+  }
+
+  buf_size = 4096;
+  vm_img->SetPosition(vm_img, 0);
+  status = vm_img->Read(vm_img, &buf_size, vm_img_buf);
+  if (EFI_ERROR(status)) {
+    Print(L"Failed to vm image read = %r\r\n", status);
+  }
+
+  return status;
+}
+
+EFI_STATUS EFIAPI start_bootloader(EFI_HANDLE image_handle)
+{
+  EFI_STATUS status = EFI_SUCCESS;
+  UINTN paging, map_key;
+  EFI_PHYSICAL_ADDRESS *hypervisor_image;
+  x64_registers_state *registers;
+  EFI_FILE_PROTOCOL *root;
+
+  paging = level4_paging();
+  if (paging) {
+    Print(L"Level4 paging enabled\r\n");
+  }
+
+  status = gBS->AllocatePool(EfiRuntimeServicesCode, 4096, (void **)&hypervisor_image);
+  if (EFI_ERROR(status)) {
+    Print(L"Failed to AllocatePool for Hypervisor image = %r\r\n", status);
+  }
+
+  status = gBS->AllocatePool(EfiRuntimeServicesData, sizeof(x64_registers_state), (void **)&registers);
+
+  init_cpu_snapshot(registers);
+  map_key = save_memory_map();
+
+  init_fs(image_handle);
+}
+
 
 void EFIAPI init_system_table(IN EFI_SYSTEM_TABLE *system_table)
 {
@@ -22,26 +94,13 @@ void EFIAPI init_system_table(IN EFI_SYSTEM_TABLE *system_table)
   gBS = system_table->BootServices;
 }
 
-EFI_STATUS EFIAPI efi_main(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable)
+EFI_STATUS EFIAPI efi_main(IN EFI_HANDLE image_handle, IN EFI_SYSTEM_TABLE *system_table)
 {
   EFI_STATUS status;
-  UINTN paging;
-  EFI_PHYSICAL_ADDRESS *hypervisor_image = NULL;
-  x64_registers_state *registers = NULL;
 
-  init_system_table(SystemTable);
-  paging = level4_paging();
-  if (paging) {
-    Print(L"Level4 paging enabled\r\n");
-  }
+  init_system_table(system_table);
 
-  status = gBS->AllocatePool(EfiRuntimeServicesCode, 1024, (void**) & hypervisor_image);
-  if (EFI_ERROR(status)) {
-    Print(L"Failed to AllocatePool for Hypervisor image = %r\r\n", status);
-  }
-
-  status = gBS->AllocatePool(EfiRuntimeServicesData, sizeof(x64_registers_state), (void**) & registers);
-  init_cpu_snapshot(registers);
+  status = start_bootloader(image_handle);
 
   return EFI_SUCCESS;
 }
