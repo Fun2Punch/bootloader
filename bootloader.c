@@ -22,12 +22,12 @@ EFI_FILE_PROTOCOL *init_fs(IN EFI_HANDLE image_handle)
   EFI_FILE_PROTOCOL *root = NULL;
   EFI_STATUS status;
 
-  status = gBS->HandleProtocol(image_handle, &gEfiLoadedImageProtocolGuid, &loaded_img);
+  status = gBS->HandleProtocol(image_handle, &gEfiLoadedImageProtocolGuid, (void**) & loaded_img);
   if (EFI_ERROR(status)) {
     Print(L"Failed to HandleProtocol = %r\r\n", status);
   }
 
-  status = gBS->HandleProtocol(loaded_img->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, &simple_fs);
+  status = gBS->HandleProtocol(loaded_img->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**) & simple_fs);
   if (EFI_ERROR(status)) {
     Print(L"Failed to Simple file system protocol = %r\r\n", status);
   }
@@ -49,6 +49,8 @@ EFI_STATUS EFIAPI load_img(IN EFI_FILE_PROTOCOL *root, IN CHAR16 *img_name)
   status = root->Open(root, &vm_img, img_name, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
   if (EFI_ERROR(status)) {
     Print(L"Failed to root fs open = %r\r\n", status);
+    status = EFI_NOT_FOUND;
+    goto failed_status;
   }
 
   buf_size = 4096;
@@ -56,35 +58,38 @@ EFI_STATUS EFIAPI load_img(IN EFI_FILE_PROTOCOL *root, IN CHAR16 *img_name)
   status = vm_img->Read(vm_img, &buf_size, vm_img_buf);
   if (EFI_ERROR(status)) {
     Print(L"Failed to vm image read = %r\r\n", status);
+    goto failed_status;
   }
 
+  status = EFI_SUCCESS;
+
+failed_status:
   return status;
 }
 
-EFI_STATUS EFIAPI start_bootloader(EFI_HANDLE image_handle)
+void EFIAPI start_bootloader(EFI_HANDLE image_handle)
 {
-  EFI_STATUS status = EFI_SUCCESS;
-  UINTN paging, map_key;
+  // UINTN map_key;
+  UINTN paging;
   EFI_PHYSICAL_ADDRESS *hypervisor_image;
   x64_registers_state *registers;
   EFI_FILE_PROTOCOL *root;
+  CHAR16 *img_name = L"vmm.img";
 
   paging = level4_paging();
   if (paging) {
     Print(L"Level4 paging enabled\r\n");
   }
 
-  status = gBS->AllocatePool(EfiRuntimeServicesCode, 4096, (void **)&hypervisor_image);
-  if (EFI_ERROR(status)) {
-    Print(L"Failed to AllocatePool for Hypervisor image = %r\r\n", status);
-  }
+  gBS->AllocatePool(EfiRuntimeServicesCode, 4096, (void **)&hypervisor_image);
 
-  status = gBS->AllocatePool(EfiRuntimeServicesData, sizeof(x64_registers_state), (void **)&registers);
+  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(x64_registers_state), (void **)&registers);
 
   init_cpu_snapshot(registers);
-  map_key = save_memory_map();
+  save_memory_map();
 
-  init_fs(image_handle);
+  root = init_fs(image_handle);
+  load_img(root, img_name);
 }
 
 
@@ -96,11 +101,11 @@ void EFIAPI init_system_table(IN EFI_SYSTEM_TABLE *system_table)
 
 EFI_STATUS EFIAPI efi_main(IN EFI_HANDLE image_handle, IN EFI_SYSTEM_TABLE *system_table)
 {
-  EFI_STATUS status;
+  EFI_STATUS status = EFI_SUCCESS;
 
   init_system_table(system_table);
 
-  status = start_bootloader(image_handle);
+  start_bootloader(image_handle);
 
-  return EFI_SUCCESS;
+  return status;
 }
