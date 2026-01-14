@@ -7,6 +7,7 @@
 #include <Library/BaseMemoryLib.h>
 
 #include "include/paging.h"
+#include "include/bits.h"
 
 UINT8 EFIAPI trans_linear_addr(IN UINTN cr3)
 {
@@ -41,35 +42,35 @@ long_mode_disabled:
 }
 
 // R0.PG = 1, CR4.PAE = 1, IA32_EFER.LME = 1, and //////////////////// CR4.LA57 = 0. 5 - level paging
-UINTN EFIAPI level4_paging(void)
+UINTN EFIAPI paging_mode(void)
 {
-  UINTN status, cr0, cr4;
+  UINTN status, cr0, cr4, and_mask;
   BOOLEAN long_mode;
 
   status = 0;
+  and_mask = 0;
   cr0 = AsmReadCr0();
   cr4 = AsmReadCr4();
 
+  Print(L"CR4 = 0x%llu\r\n", cr4);
   long_mode = long_mode_enabled(cr0, cr4);
   if (long_mode) {
     Print(L"long mode enabled\n");
   } else {
-    Print(L"level4 paging disabled, long mode disabled\n");
+                    Print(L"level4 paging disabled, long mode disabled\n");
     goto disabled_level4;
   }
 
   if ((cr4 & BIT12) == 0) {
-    Print(L"CR4.LA57 = 0\r\n");
+    Print(L"level4 enabled, CR4.LA57 = 0\r\n");
   } else {
-    Print(L"level4 paging disabled, CR4.LA57 = 1\r\n");
-    goto disabled_level4;
+    Print(L"level5 enabled, CR4.LA57 = 1\r\n");
   }
 
-  if ((cr4 & BIT17) == 1) {
-    Print(L"CR4.PCIDE = 1\n");
+  if ((cr4 & BIT16)) {
+    Print(L"CR4.PCIDE = 1\r\n");
   } else {
     Print(L" CR4.PCIDE = 0\n");
-    goto disabled_level4;
   }
 
   status = 1;
