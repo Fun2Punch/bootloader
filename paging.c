@@ -35,7 +35,7 @@ BOOLEAN EFIAPI long_mode_enabled(UINTN cr0, UINTN cr4)
     goto long_mode_disabled;
   }
 
-  status 1;
+  status = 1;
 long_mode_disabled:
   return status;
 }
@@ -62,6 +62,13 @@ UINTN EFIAPI level4_paging(void)
     Print(L"CR4.LA57 = 0\r\n");
   } else {
     Print(L"level4 paging disabled, CR4.LA57 = 1\r\n");
+    goto disabled_level4;
+  }
+
+  if ((cr4 & BIT17) == 1) {
+    Print(L"CR4.PCIDE = 1\n");
+  } else {
+    Print(L" CR4.PCIDE = 0\n");
     goto disabled_level4;
   }
 
