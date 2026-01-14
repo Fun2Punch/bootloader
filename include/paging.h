@@ -14,7 +14,7 @@ typedef struct _pml4_table {
 } pml4_table;
 
 BOOLEAN EFIAPI long_mode_enabled(UINTN cr0, UINTN cr4);
-UINTN EFIAPI level4_paging(void);
+UINTN EFIAPI paging_mode(void);
 
 UINTN EFIAPI save_memory_map(void);
 
