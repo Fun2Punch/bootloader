@@ -62,15 +62,15 @@ UINTN EFIAPI paging_mode(void)
   }
 
   if ((cr4 & BIT12) == 0) {
-    Print(L"level4 enabled, CR4.LA57 = 0\r\n");
+    Print(L"CR4.LA57 = 0\r\n");
   } else {
     Print(L"level5 enabled, CR4.LA57 = 1\r\n");
   }
 
-  if ((cr4 & BIT16)) {
-    Print(L"CR4.PCIDE = 1\r\n");
+  if ((cr4 & BIT17)) {
+    Print(L"level4 enabled, CR4.PCIDE = 1\r\n");
   } else {
-    Print(L" CR4.PCIDE = 0\n");
+    Print(L"level5 enabled, CR4.PCIDE = 0\n");
   }
 
   status = 1;
