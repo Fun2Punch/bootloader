@@ -1,0 +1,1 @@
+;this is entry code for start vmm
