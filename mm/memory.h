@@ -15,11 +15,14 @@ struct special_registers {
         unsigned short tr;
 };
 
-struct memory_pool {
+struct memory_map {
         unsigned long base_addr;
         unsigned long state;
         unsigned long size;
+        unsigned long capacity;
 };
+
+
 
 void mm_init(void);
 

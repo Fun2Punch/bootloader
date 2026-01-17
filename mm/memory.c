@@ -3,24 +3,17 @@
 
 #include "memory.h"
 
-unsigned char mem_map[512*1024*1024];
+struct memory_map *mem_map;
 
 void mm_init(void)
 {
-
+        memset((void*)mem_map, 0, sizeof(struct memory_map));
 }
 
 unsigned long alloc_page()
 {
-        unsigned long addr;
-        for(int i = 0; i <= MAX_PAGES; ++i) {
-                if(mem_map[i] == 0) {
-                        mem_map[i] = 1;
-                        addr = BASE_ADDR + (i << 12);
-                        memset((void*)addr, 0, 4096);
-                        return addr;
-                }
-        }
+        unsigned long addr = 0;
+        
 
-        return 0;
+        return addr;
 }
