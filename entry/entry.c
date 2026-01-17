@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include <memory.h>
+extern void mm_init(void);
 
 int entry_vmm(void)
 {

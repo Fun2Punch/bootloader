@@ -15,10 +15,7 @@ SRC := $(shell find entry mm -name '*.c' -o -name '*.S')
 OBJS := $(SRC:.c=.o)
 OBJS := $(OBJS:.S=.o)
 
-all:$(TARGET).img
-
-$(TARGET).img: $(TARGET).bin
-	cp $< $@
+all:$(TARGET).bin
 	
 $(TARGET).bin: $(TARGET).elf
 	$(OBJCOPY) -O binary $< $@
@@ -33,5 +30,5 @@ $(TARGET).elf: $(OBJS)
 	$(CC) $(SRCFLAGS) $(CFLAGS) -c $< -o $@
 	
 clean:
-	rm -rf *.o
+	rm -rf entry/*.o arch/*.o mm/*.o
 	rm -rf $(TARGET).elf $(TARGET).bin $(TARGET).img

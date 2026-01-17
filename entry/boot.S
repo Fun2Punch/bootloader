@@ -1,13 +1,12 @@
-;this is entry code for start vmm
 .intel_syntax noprefix
 
 .section .text
 
-.global entry
+.global _start
 
-entry:
+_start:
         hlt
         nop
-        ret
+        jmp entry_vmm
 
 .att_syntax prefix
