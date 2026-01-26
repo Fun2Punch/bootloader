@@ -64,7 +64,7 @@ struct desc_table_reg_x64 {
   UINT64 base;
 };
 
-struct x64_system_context {
+typedef struct _system_context_x64 {
   UINT64 rax;
   UINT64 rbx;
   UINT64 rcx;
@@ -125,9 +125,9 @@ struct x64_system_context {
   UINT64 cpu_count;
   UINT64 ap_entry_page;
   UINT64 un_cached;
-};
+} system_context_x64;
 
-void EFIAPI init_cpu_snapshot(x64_registers_state *registers);
+void EFIAPI init_cpu_snapshot(system_context_x64 *system_context);
 UINTN get_cpu_count();
 
 #endif

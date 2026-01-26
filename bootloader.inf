@@ -18,8 +18,6 @@
   memory.c
   snapshot.c
 
-  memory.S
-
 [Packages]
   MdePkg/MdePkg.dec
   BootSelectorAppPkg/BootSelectorAppPkg.dec

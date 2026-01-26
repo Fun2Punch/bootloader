@@ -24,28 +24,20 @@ UINT64 EFIAPI get_cpu_count()
   return num_enabled_processor;
 }
 
-void EFIAPI init_cpu_snapshot(x64_registers_state *registers)
+void EFIAPI init_cpu_snapshot(system_context_x64 *system_context)
 {
-  ZeroMem(registers, sizeof(x64_registers_state));
-  Print(L"Registers allocated = 0x%lx\r\n", registers);
+  ZeroMem(system_context, sizeof(system_context_x64));
+  Print(L"Registers allocated = 0x%lx\r\n", system_context);
 
-  registers->cr0 = AsmReadCr0();
-  registers->cr2 = AsmReadCr2();
-  registers->cr3 = AsmReadCr3();
-  registers->cr4 = AsmReadCr4();
-  registers->dr7 = AsmReadDr7();
-  registers->cpu_count = get_cpu_count();
-  registers->efer = AsmReadMsr64(0xC0000080);
-  registers->lme = registers->efer & (_BIT_LEFT(3));
+  system_context->cr0 = AsmReadCr0();
+  system_context->cr2 = AsmReadCr2();
+  system_context->cr3 = AsmReadCr3();
+  system_context->cr4 = AsmReadCr4();
+  system_context->dr7 = AsmReadDr7();
+  system_context->cpu_count = get_cpu_count();
+  system_context->efer = AsmReadMsr64(0xC0000080);
 
 
 
   Print(L"init current cpu state snapshot done!\n");
-}
-
-void init_gdt()
-{
-  
-
-  
 }

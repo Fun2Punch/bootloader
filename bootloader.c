@@ -69,27 +69,24 @@ failed_status:
 
 void EFIAPI start_bootloader(EFI_HANDLE image_handle)
 {
-  // UINTN map_key;
-  UINTN paging;
-  EFI_PHYSICAL_ADDRESS *hypervisor_image;
-  x64_registers_state *registers;
-  EFI_FILE_PROTOCOL *root;
-  CHAR16 *img_name = L"vmm.img";
+  EFI_STATUS status;
+  system_context_x64 *registers;
+  //EFI_FILE_PROTOCOL *root;
+  //CHAR16 *img_name = L"vmm.img";
+  EFI_PHYSICAL_ADDRESS phy_addr;
 
-  paging = paging_mode();
-  if (paging) {
+  if (paging_mode()) {
     Print(L"paging enabled\r\n");
   }
 
-  gBS->AllocatePool(EfiRuntimeServicesCode, 4096, (void **)&hypervisor_image);
+  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(system_context_x64), (void **)&registers);
 
-  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(x64_registers_state), (void **)&registers);
+  status = gBS->AllocatePages(AllocateAnyPages, EfiRuntimeServicesData, 2, &phy_addr);
+  if (EFI_ERROR(status)) {
+    Print(L"Failed AllocatePages = %r\r\n", status);
+  }
 
   init_cpu_snapshot(registers);
-  save_memory_map();
-
-  root = init_fs(image_handle);
-  load_img(root, img_name);
 }
 
 
