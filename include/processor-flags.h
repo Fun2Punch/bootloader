@@ -3,7 +3,7 @@
 
 #include <include/bits.h>
 
-// EFLAGS REGISTER
+// EFLAGS REGISTER x64
 #define X86_EFLAGS_CF_BIT          0 /* Carry Flag */
 #define X86_EFLAGS_CF              _BIT_LEFT(X86_EFLAGS_CF_BIT)
 #define X86_EFLAGS_FIXED_BIT       1
@@ -25,6 +25,8 @@
 #define X86_EFLAGS_OF_BIT          11
 #define X86_EFLAGS_OF              _BIT_LEFT(X86_EFLAGS_OF_BIT)
 #define X86_EFLAGS_IOPL_BIT        12
-//#define X86_EFLAGS_IOPL            _
+#define X86_EFLAGS_IOPL            (_AC(3,UL) << X86_EFLAGS_IOPL_BIT)
+#define X86_EFLAGS_NT_BIT          14
+#define X86_EFLAGS_NT              _BIT_LEFT(X86_EFLAGS_NT_BIT)
 
 #endif

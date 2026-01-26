@@ -38,19 +38,7 @@ void EFIAPI init_cpu_snapshot(x64_registers_state *registers)
   registers->efer = AsmReadMsr64(0xC0000080);
   registers->lme = registers->efer & (_BIT_LEFT(3));
 
-  registers->rax = get_rax();
-  registers->rbx = get_rbx();
-  registers->rcx = get_rcx();
-  registers->rdx = get_rdx();
 
-  registers->r8 = get_r8();
-  registers->r9 = get_r9();
-  registers->r10 = get_r10();
-  registers->r11 = get_r11();
-  registers->r12 = get_r12();
-  registers->r13 = get_r13();
-  registers->r14 = get_r14();
-  registers->r15 = get_r15();
 
   Print(L"init current cpu state snapshot done!\n");
 }

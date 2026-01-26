@@ -8,7 +8,7 @@
 #include <Protocol/LoadedImage.h>
 
 #include "include/bootloader.h"
-#include "include/paging.h"
+#include "include/memory.h"
 
 #include "include/snapshot.h"
 #include "include/bits.h"
@@ -76,9 +76,9 @@ void EFIAPI start_bootloader(EFI_HANDLE image_handle)
   EFI_FILE_PROTOCOL *root;
   CHAR16 *img_name = L"vmm.img";
 
-  paging = level4_paging();
+  paging = paging_mode();
   if (paging) {
-    Print(L"Level4 paging enabled\r\n");
+    Print(L"paging enabled\r\n");
   }
 
   gBS->AllocatePool(EfiRuntimeServicesCode, 4096, (void **)&hypervisor_image);
