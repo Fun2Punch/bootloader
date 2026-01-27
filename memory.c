@@ -7,8 +7,10 @@
 #include <Library/BaseMemoryLib.h>
 #include <Include/Protocol/DebugSupport.h>
 
-#include "include/memory.h"
-#include "include/bits.h"
+#include "memory.h"
+#include "bits.h"
+
+#include "snapshot.h"
 
 UINT8 EFIAPI trans_linear_addr(IN UINTN cr3)
 {
@@ -22,25 +24,9 @@ UINT8 EFIAPI trans_linear_addr(IN UINTN cr3)
 }
 
 // R0.PG = 1, CR4.PAE = 1, IA32_EFER.LME = 1, and //////////////////// CR4.LA57 = 0. 5 - level paging
-EFI_STATUS EFIAPI paging_mode(void)
+void EFIAPI paging_mode(struct system_regs_x64 *registers)
 {
-  EFI_STATUS status;
-  UINTN cr0, cr4, and_mask;
-
-  status = 0;
-  and_mask = 0;
-  cr0 = AsmReadCr0();
-  cr4 = AsmReadCr4();
-
-  Print(L"CR4 = 0x%llu\r\n", cr4);
-
-  if ((cr4 & BIT12) == 0) {
-    Print(L"level4 enabled CR4.LA57 = 0\r\n");
-  } else {
-    Print(L"level5 enabled, CR4.LA57 = 1\r\n");
-  }
-
-  return status;
+  current_registers_snapshot(registers);
 }
 
 UINTN EFIAPI save_memory_map(void)

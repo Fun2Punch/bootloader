@@ -10,6 +10,9 @@
 
 #include "snapshot.h"
 #include "bits.h"
+#include "memory.h"
+
+#include "helper.h"
 
 UINT64 EFIAPI get_cpu_count()
 {
@@ -24,14 +27,29 @@ UINT64 EFIAPI get_cpu_count()
   return num_enabled_processor;
 }
 
-system_registers_x64 EFIAPI init_cpu_snapshot()
+struct system_regs_x64 EFIAPI init_cpu_snapshot()
 {
-  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(system_registers_x64), (void **)&system_registers);
+  EFI_STATUS status;
+  struct system_regs_x64 *registers;
+
+  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(struct system_regs_x64), (void **)&registers);
   if (EFI_ERROR(status)) {
-    Print(L"system_context_x64 allocate failed = %r\r\n", status);
+    Print(L"system_registers_x64 allocate failed = %r\r\n", status);
   }
 
-  ZeroMem(system_registers, sizeof(system_registers_x64));
+  ZeroMem(registers, sizeof(struct system_regs_x64));
+
+  paging_mode(registers);
 
   Print(L"init current cpu state snapshot done!\n");
+
+  return registers;
+}
+
+void current_registers_snapshot(struct system_regs_x64 *registers)
+{
+  registers->cr0 = AsmReadCr0();
+  registers->cr3 = AsmReadCr3();
+  registers->cr4 = AsmReadCr4();
+  registers->efer = AsmReadMsr64(0xC0000080);
 }

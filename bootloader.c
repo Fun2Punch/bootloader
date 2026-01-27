@@ -13,9 +13,11 @@
 #include "snapshot.h"
 #include "bits.h"
 
+#include "helper.h"
+
 // xor eax, eax | mov eax, cr0 | and eax, 0x7FFFFFFF | cmp eax, 1 je PagingOn(function addr)
 
-void EFIAPI *init_fs(IN EFI_HANDLE image_handle, file_system *fs)
+void EFIAPI *init_fs(IN EFI_HANDLE image_handle, struct file_system *fs)
 {
   EFI_STATUS status;
 
@@ -67,25 +69,42 @@ failed_status:
   return status;
 }
 
-void EFIAPI start_bootloader(EFI_HANDLE image_handle)
+EFI_PHYSICAL_ADDRESS EFIAPI alloc_vmm()
 {
+  EFI_PHYSICAL_ADDRESS vmm_addr;
   EFI_STATUS status;
-  file_system *fs;
-  EFI_PHYSICAL_ADDRESS phy_addr;
-  system_registers_x64 system_registers;
 
-  if (paging_mode()) {
-    Print(L"paging enabled\r\n");
-  }
-
-  status = gBS->AllocatePages(AllocateAnyPages, EfiRuntimeServicesData, 2, &phy_addr);
+  status = gBS->AllocatePages(AllocateAnyPages, EfiRuntimeServicesData, 2, &vmm_addr);
   if (EFI_ERROR(status)) {
-    Print(L"Failed AllocatePages = %r\r\n", status);
+    Print(L"failed allocate pages for vmm addr = %r\r\n", status);
   }
 
-  system_registers = init_cpu_snapshot();
+  return vmm_addr;
 }
 
+void EFIAPI start_bootloader(EFI_HANDLE image_handle)
+{
+  EFI_STATUS status;  
+  EFI_PHYSICAL_ADDRESS vmm_addr;
+  struct system_management *data;
+  struct system_settings setting;
+
+  vmm_addr = alloc_vmm();
+
+  data->registers = init_cpu_snapshot();
+}
+
+void EFIAPI init_settings(IN struct system_settings *setting)
+{
+  gBS->AllocatePool(EfiBootServicesData, sizeof(struct system_settings), (void **)&setting);
+
+  setting->get_current_regs = current_regs;
+}
+
+struct system_regs_x64 EFIAPI current_regs()
+{
+  
+}
 
 void EFIAPI init_system_table(IN EFI_SYSTEM_TABLE *system_table)
 {

@@ -64,7 +64,7 @@ typedef struct _desc_table_reg_x64 {
   UINT64 base;
 } desc_table_reg_x64;
 
-typedef struct _system_context_x64 {
+struct system_regs_x64 {
   UINT64 rax;
   UINT64 rbx;
   UINT64 rcx;
@@ -125,13 +125,10 @@ typedef struct _system_context_x64 {
   UINT64 cpu_count;
   UINT64 ap_entry_page;
   UINT64 un_cached;
-} system_registers_x64;
+};
 
-typedef struct _system_architecture_x64 {
-  system_registers_x64 registers;
-} system_architecture_x64;
-
-system_registers_x64 EFIAPI init_cpu_snapshot();
+struct system_regs_x64 EFIAPI init_cpu_snapshot();
 UINTN get_cpu_count();
+void current_registers_snapshot(struct system_regs_x64 *registers);
 
 #endif
