@@ -7,11 +7,11 @@
 
 #include <Protocol/LoadedImage.h>
 
-#include "include/bootloader.h"
-#include "include/memory.h"
+#include "bootloader.h"
+#include "memory.h"
 
-#include "include/snapshot.h"
-#include "include/bits.h"
+#include "snapshot.h"
+#include "bits.h"
 
 // xor eax, eax | mov eax, cr0 | and eax, 0x7FFFFFFF | cmp eax, 1 je PagingOn(function addr)
 
@@ -67,11 +67,6 @@ failed_status:
   return status;
 }
 
-void free_fs(file_system *fs)
-{
-  gBS->FreePool(fs);
-}
-
 void EFIAPI start_bootloader(EFI_HANDLE image_handle)
 {
   EFI_STATUS status;
@@ -88,7 +83,6 @@ void EFIAPI start_bootloader(EFI_HANDLE image_handle)
     Print(L"Failed AllocatePages = %r\r\n", status);
   }
 
-  init_system_table(system_table);
   system_registers = init_cpu_snapshot();
 }
 
@@ -103,6 +97,7 @@ EFI_STATUS EFIAPI efi_main(IN EFI_HANDLE image_handle, IN EFI_SYSTEM_TABLE *syst
 {
   EFI_STATUS status = EFI_SUCCESS;
 
+  init_system_table(system_table);
   start_bootloader(image_handle);
 
   return status;

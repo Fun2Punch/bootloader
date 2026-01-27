@@ -8,8 +8,8 @@
 #include <Protocol/LoadedImage.h>
 #include <Protocol/MpService.h>
 
-#include "include/snapshot.h"
-#include "include/bits.h"
+#include "snapshot.h"
+#include "bits.h"
 
 UINT64 EFIAPI get_cpu_count()
 {
