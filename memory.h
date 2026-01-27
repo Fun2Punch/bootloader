@@ -9,10 +9,8 @@ typedef struct _memory_map {
   UINT64               attribute;
 } vmm_memory_map;
 
-UINTN EFIAPI paging_mode(void);
-
+EFI_STATUS EFIAPI paging_mode(void);
 UINTN EFIAPI save_memory_map(void);
-
 UINT8 EFIAPI trans_linear_addr(IN UINTN cr3);
 
 #endif

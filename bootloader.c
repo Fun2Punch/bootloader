@@ -15,29 +15,29 @@
 
 // xor eax, eax | mov eax, cr0 | and eax, 0x7FFFFFFF | cmp eax, 1 je PagingOn(function addr)
 
-EFI_FILE_PROTOCOL *init_fs(IN EFI_HANDLE image_handle)
+void EFIAPI *init_fs(IN EFI_HANDLE image_handle, file_system *fs)
 {
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *simple_fs = NULL;
-  EFI_LOADED_IMAGE_PROTOCOL *loaded_img = NULL;
-  EFI_FILE_PROTOCOL *root = NULL;
   EFI_STATUS status;
 
-  status = gBS->HandleProtocol(image_handle, &gEfiLoadedImageProtocolGuid, (void**) & loaded_img);
+  status = gBS->AllocatePool(EfiBootServicesData, sizeof(file_system), (void **)&fs);
   if (EFI_ERROR(status)) {
-    Print(L"Failed to HandleProtocol = %r\r\n", status);
+    Print(L"failed file_system allocete = %r\r\n", status);
   }
 
-  status = gBS->HandleProtocol(loaded_img->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**) & simple_fs);
+  status = gBS->HandleProtocol(image_handle, &gEfiLoadedImageProtocolGuid, (void**) & fs->loaded_img);
   if (EFI_ERROR(status)) {
-    Print(L"Failed to Simple file system protocol = %r\r\n", status);
+    Print(L"failed to HandleProtocol = %r\r\n", status);
   }
 
-  status = simple_fs->OpenVolume(simple_fs, &root);
+  status = gBS->HandleProtocol(loaded_img->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**) & fs->simple_fs);
   if (EFI_ERROR(status)) {
-    Print(L"Faild to OpenVolume = %r\r\n", status);
+    Print(L"failed to Simple file system protocol = %r\r\n", status);
   }
 
-  return root;
+  status = simple_fs->OpenVolume(simple_fs, &fs->root);
+  if (EFI_ERROR(status)) {
+    Print(L"failed to OpenVolume = %r\r\n", status);
+  }
 }
 
 EFI_STATUS EFIAPI load_img(IN EFI_FILE_PROTOCOL *root, IN CHAR16 *img_name)
@@ -67,26 +67,29 @@ failed_status:
   return status;
 }
 
+void free_fs(file_system *fs)
+{
+  gBS->FreePool(fs);
+}
+
 void EFIAPI start_bootloader(EFI_HANDLE image_handle)
 {
   EFI_STATUS status;
-  system_context_x64 *registers;
-  //EFI_FILE_PROTOCOL *root;
-  //CHAR16 *img_name = L"vmm.img";
+  file_system *fs;
   EFI_PHYSICAL_ADDRESS phy_addr;
+  system_registers_x64 system_registers;
 
   if (paging_mode()) {
     Print(L"paging enabled\r\n");
   }
-
-  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(system_context_x64), (void **)&registers);
 
   status = gBS->AllocatePages(AllocateAnyPages, EfiRuntimeServicesData, 2, &phy_addr);
   if (EFI_ERROR(status)) {
     Print(L"Failed AllocatePages = %r\r\n", status);
   }
 
-  init_cpu_snapshot(registers);
+  init_system_table(system_table);
+  system_registers = init_cpu_snapshot();
 }
 
 
@@ -99,8 +102,6 @@ void EFIAPI init_system_table(IN EFI_SYSTEM_TABLE *system_table)
 EFI_STATUS EFIAPI efi_main(IN EFI_HANDLE image_handle, IN EFI_SYSTEM_TABLE *system_table)
 {
   EFI_STATUS status = EFI_SUCCESS;
-
-  init_system_table(system_table);
 
   start_bootloader(image_handle);
 

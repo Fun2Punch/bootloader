@@ -59,10 +59,10 @@ struct fx_save_state_x64 {
 * +-----------------------------|---------------+
 * 32(64)-bit Linear Base Address| 16-Bit Table Limit
 */
-struct desc_table_reg_x64 {
+typedef struct _desc_table_reg_x64 {
   UINT16 limit;
   UINT64 base;
-};
+} desc_table_reg_x64;
 
 typedef struct _system_context_x64 {
   UINT64 rax;
@@ -125,9 +125,13 @@ typedef struct _system_context_x64 {
   UINT64 cpu_count;
   UINT64 ap_entry_page;
   UINT64 un_cached;
-} system_context_x64;
+} system_registers_x64;
 
-void EFIAPI init_cpu_snapshot(system_context_x64 *system_context);
+typedef struct _system_architecture_x64 {
+  system_registers_x64 registers;
+} system_architecture_x64;
+
+system_registers_x64 EFIAPI init_cpu_snapshot();
 UINTN get_cpu_count();
 
 #endif

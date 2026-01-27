@@ -22,9 +22,10 @@ UINT8 EFIAPI trans_linear_addr(IN UINTN cr3)
 }
 
 // R0.PG = 1, CR4.PAE = 1, IA32_EFER.LME = 1, and //////////////////// CR4.LA57 = 0. 5 - level paging
-UINTN EFIAPI paging_mode(void)
+EFI_STATUS EFIAPI paging_mode(void)
 {
-  UINTN status, cr0, cr4, and_mask;
+  EFI_STATUS status;
+  UINTN cr0, cr4, and_mask;
 
   status = 0;
   and_mask = 0;
