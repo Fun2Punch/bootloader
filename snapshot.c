@@ -5,6 +5,8 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseMemoryLib.h>
 
+#include <Protocol/SimpleFileSystem.h>
+
 #include <Protocol/LoadedImage.h>
 #include <Protocol/MpService.h>
 
@@ -27,7 +29,7 @@ UINT64 EFIAPI get_cpu_count()
   return num_enabled_processor;
 }
 
-struct system_regs_x64 EFIAPI init_cpu_snapshot()
+struct system_regs_x64 EFIAPI *init_cpu_snapshot()
 {
   EFI_STATUS status;
   struct system_regs_x64 *registers;

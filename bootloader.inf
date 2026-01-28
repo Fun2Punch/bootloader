@@ -20,7 +20,7 @@
 
 [Packages]
   MdePkg/MdePkg.dec
-  BootSelectorAppPkg/BootSelectorAppPkg.dec
+  boot-selector-pkg/boot-selector-pkg.dec
 
 [LibraryClasses]
   BaseLib
