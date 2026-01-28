@@ -127,6 +127,18 @@ struct system_regs_x64 {
   UINT64 un_cached;
 };
 
+struct file_system {
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *simple_fs;
+  EFI_LOADED_IMAGE_PROTOCOL *loaded_img;
+  EFI_FILE_PROTOCOL *root;
+  CHAR16 *vmm_name;
+};
+
+struct system_management {
+  struct system_regs_x64 *registers;
+  struct file_system fs;
+};
+
 struct system_regs_x64 EFIAPI *init_cpu_snapshot();
 UINTN EFIAPI get_cpu_count();
 void EFIAPI current_registers_snapshot(struct system_regs_x64 *registers);

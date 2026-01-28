@@ -6,7 +6,6 @@
 #include <Library/BaseMemoryLib.h>
 
 #include <Protocol/SimpleFileSystem.h>
-
 #include <Protocol/LoadedImage.h>
 #include <Protocol/MpService.h>
 
