@@ -28,12 +28,12 @@ void EFIAPI start_bootloader(EFI_HANDLE image_handle);
 void EFIAPI init_system_table(IN EFI_SYSTEM_TABLE *system_table);
 void EFIAPI init_fs(IN EFI_HANDLE image_handle, struct file_system *fs);
 void EFIAPI init_settings(OUT struct system_settings *setting);
-struct system_management EFIAPI *init_system_management();
+struct system_management EFIAPI *init_system_management(void);
 
-struct system_regs_x64 EFIAPI current_regs();
+struct system_regs_x64 EFIAPI current_regs(void);
 
 EFI_STATUS EFIAPI load_img(IN EFI_FILE_PROTOCOL *root, IN CHAR16 *img_name);
 
-EFI_PHYSICAL_ADDRESS EFIAPI alloc_vmm();
+EFI_PHYSICAL_ADDRESS EFIAPI alloc_vmm(void);
 
 #endif

@@ -70,7 +70,7 @@ failed_status:
   return status;
 }
 
-EFI_PHYSICAL_ADDRESS EFIAPI alloc_vmm()
+EFI_PHYSICAL_ADDRESS EFIAPI alloc_vmm(void)
 {
   EFI_PHYSICAL_ADDRESS vmm_addr;
   EFI_STATUS status;
@@ -87,7 +87,7 @@ void EFIAPI start_bootloader(EFI_HANDLE image_handle)
 {
   EFI_PHYSICAL_ADDRESS vmm_addr;
   struct system_management *data;
-  struct system_settings *settings;
+  struct system_settings *settings = NULL;
 
   vmm_addr = alloc_vmm();
   Print(L"vmm address = 0x%lx\r\n", vmm_addr);
@@ -98,7 +98,7 @@ void EFIAPI start_bootloader(EFI_HANDLE image_handle)
   data->registers = init_cpu_snapshot();
 }
 
-struct system_management EFIAPI *init_system_management()
+struct system_management EFIAPI *init_system_management(void)
 {
   struct system_management *sys;
 
@@ -116,7 +116,7 @@ void EFIAPI init_settings(OUT struct system_settings *setting)
   setting->get_current_regs = current_regs;
 }
 
-struct system_regs_x64 EFIAPI current_regs()
+struct system_regs_x64 EFIAPI current_regs(void)
 {
   struct system_regs_x64 regs;
 

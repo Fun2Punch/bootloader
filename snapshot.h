@@ -128,7 +128,7 @@ struct system_regs_x64 {
 };
 
 struct system_regs_x64 EFIAPI *init_cpu_snapshot();
-UINTN get_cpu_count();
-void current_registers_snapshot(struct system_regs_x64 *registers);
+UINTN EFIAPI get_cpu_count();
+void EFIAPI current_registers_snapshot(struct system_regs_x64 *registers);
 
 #endif

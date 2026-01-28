@@ -34,7 +34,7 @@ struct system_regs_x64 EFIAPI *init_cpu_snapshot()
   EFI_STATUS status;
   struct system_regs_x64 *registers;
 
-  gBS->AllocatePool(EfiRuntimeServicesData, sizeof(struct system_regs_x64), (void **)&registers);
+  status = gBS->AllocatePool(EfiRuntimeServicesData, sizeof(struct system_regs_x64), (void **)&registers);
   if (EFI_ERROR(status)) {
     Print(L"system_registers_x64 allocate failed = %r\r\n", status);
   }
@@ -48,7 +48,7 @@ struct system_regs_x64 EFIAPI *init_cpu_snapshot()
   return registers;
 }
 
-void current_registers_snapshot(struct system_regs_x64 *registers)
+void EFIAPI current_registers_snapshot(struct system_regs_x64 *registers)
 {
   registers->cr0 = AsmReadCr0();
   registers->cr3 = AsmReadCr3();
