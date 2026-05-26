@@ -18,6 +18,20 @@ void EFIAPI init_services(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	gBS = SystemTable->BootServices;
 }
 
+void EFIAPI __create_painting(void)
+{
+	EFI_STATUS status;
+	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
+
+	status = gBS->LocateProtocol(&gEfiGraphicsOutputProtocolGuid, NULL,
+			    (void **)&gop);
+	if (EFI_ERROR(status)) {
+		Print(L"failed to locate protocol for graphics output protocol "
+		      L"= %r\r\n",
+		      status);
+	}
+}
+
 static void EFIAPI __free(struct vmm_context *context,
 			  struct uefi_state_struct *uefi_state)
 {
@@ -63,6 +77,8 @@ EFI_STATUS EFIAPI UefiMain(IN EFI_HANDLE ImageHandle,
 	enter_vmm(context, uefi_state);
 	Print(L"now out from asm\r\n");
 
+
+	__free(context, uefi_state);
 	// actually need free memory for clean
 	exit_vmm();
 

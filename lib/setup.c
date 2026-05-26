@@ -487,6 +487,10 @@ void EFIAPI __setup_memory_map(struct vmm_context *context)
 
 static UINT64 EFIAPI __start_ap_wake_up(struct vmm_context *context, UINT64 free_page)
 {
+	/*
+	* actually i can wake up every ap cores in here
+	* but i wanna be prove myself then i'm gonna be wake up all ap cores in vmm code
+	*/
 	EFI_MP_SERVICES_PROTOCOL *mp;
 	UINT64 free, end_addr;
 	UINTN num;
@@ -531,6 +535,8 @@ static void EFIAPI __setup_vmm_parameters(struct vmm_context *context,
 		(UINT64)0x00400000 + (context->vmcs - context->vmm);
 	parameters->extra_memory_size = 0x8000000;
 	parameters->ap_entry_page = context->ap_entry_page;
+	parameters->bsp_address = context->bsp;
+	parameters->cpu_count = context->processor_num;
 	//vmm_parameter->memory_map = (EFI_PHYSICAL_ADDRESS)context->memory_desc;
 	//vmm_parameter->map_size = context->map_size;
 

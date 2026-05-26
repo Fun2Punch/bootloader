@@ -120,4 +120,16 @@ exit_vmm:
 	mov rbx, [rdx + uefi_state.es]
 	mov es, bx
 
+	mov rbx, [rdx + uefi_state.cs]
+	mov cs, bx
+
+	mov rbx, [rdx + uefi_state.fs]
+	mov fs, bx
+
+	mov rbx, [rdx + uefi_state.ds]
+	mov fs, bx
+
+	;mov rbx, [rdx + uefi_state.tr]
+	;mov tr, rbx
+
 	ret
