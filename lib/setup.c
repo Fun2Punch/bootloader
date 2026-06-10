@@ -166,7 +166,7 @@ static EFI_STATUS EFIAPI __read_vmm_binary(struct vmm_context *context,
 				  EFI_FILE_PROTOCOL *vmm_img)
 {
 	EFI_STATUS status;
-	UINT64 size;
+	UINT64 pages;
 
 	// context->vmm_bin_size = (UINT64)context->vmm_size(vmm_img);
 	// size = ((context->vmm_bin_size / PAGE_4KB) + 1) + MIN_PAGE_NUM;
@@ -183,10 +183,10 @@ static EFI_STATUS EFIAPI __read_vmm_binary(struct vmm_context *context,
 
 	//
 
-	size = 0x600;
-	context->capacity = size;
+	pages = 0x600;
+	context->capacity = pages;
 	status = gBS->AllocatePages(AllocateAnyPages, EfiRuntimeServicesCode,
-				    size, &context->vmm);
+				    pages, &context->vmm);
 	if (EFI_ERROR(status)) {
 		Print(L"failed to allocate pages for vmm = %r\r\n", status);
 	}
@@ -313,8 +313,8 @@ static void EFIAPI __setup_tss_x86_x64(struct vmm_context *context)
 	ZeroMem((void *)&context->tss32, sizeof(struct task_state_segment32));
 	ZeroMem((void *)&context->tss64, sizeof(struct task_state_segment64));
 
-	context->tss32.esp0 =
-		((UINT64)context->vmm_stack + context->vmm_stack_size) >> 32;
+	/*context->tss32.esp0 =
+		((UINT64)context->vmm_stack + context->vmm_stack_size) >> 32;*/
 	context->tss32.cr3 = (UINT64)context->pml4 >> 32;
 	context->tss32.eflags = 0x2;
 	context->tss32.io_map_base_addr = sizeof(struct task_state_segment32);
@@ -537,8 +537,6 @@ static void EFIAPI __setup_vmm_parameters(struct vmm_context *context,
 	parameters->ap_entry_page = context->ap_entry_page;
 	parameters->bsp_address = context->bsp;
 	parameters->cpu_count = context->processor_num;
-	//vmm_parameter->memory_map = (EFI_PHYSICAL_ADDRESS)context->memory_desc;
-	//vmm_parameter->map_size = context->map_size;
 
 	gBS->AllocatePages(AllocateAnyPages, EfiRuntimeServicesCode, 0x8000,
 			   &parameters->extra_memory);
@@ -613,7 +611,7 @@ static void EFIAPI __set_segment_registers(struct uefi_state_struct *state)
 	state->cs.selector = AsmReadCs();
 	state->ss.selector = AsmReadSs();
 	state->ds.selector = AsmReadDs();
-	state->es.selector = AsmReadGs();
+	state->es.selector = AsmReadEs();
 	state->fs.selector = AsmReadFs();
 	state->gs.selector = AsmReadGs();
 	state->tr.selector = AsmReadTr();

@@ -1,4 +1,3 @@
-bits 64
 align 16
 
 default rel
@@ -109,12 +108,12 @@ ezpz:
 	jmp far rax
 
 exit_vmm:
-	mov rdx, [rel uefi_state]
+	lea rdx, [rel uefi_state]
 
-	mov rbx, [rdx + uefi_state.ss]
+	mov bx, [rdx + uefi_state.ss]
 	mov ss, bx
 
-	mov rbx, [rdx + uefi_state.gs]
+	mov bx, [rdx + uefi_state.gs]
 	mov gs, bx
 
 	mov rbx, [rdx + uefi_state.es]
@@ -129,7 +128,29 @@ exit_vmm:
 	mov rbx, [rdx + uefi_state.ds]
 	mov fs, bx
 
+	xor bx, bx
+
 	;mov rbx, [rdx + uefi_state.tr]
 	;mov tr, rbx
+
+	mov r9, [rdx + uefi_state.gdtr]
+	lgdt [r9]
+
+	mov rbx, [rdx + uefi_state.cr3]
+	mov cr3, rbx
+
+	mov rax, [rdx + uefi_state.rax]
+	mov rbx, [rdx + uefi_state.rbx]
+	mov rcx, [rdx + uefi_state.rcx]
+	mov r8, [rdx + uefi_state.r8]
+	mov r9, [rdx + uefi_state.r9]
+	mov r10, [rdx + uefi_state.r10]
+	mov r11, [rdx + uefi_state.r11]
+	mov r12, [rdx + uefi_state.r12]
+	mov r13, [rdx + uefi_state.r13]
+	mov r14, [rdx + uefi_state.r14]
+	mov r15, [rdx + uefi_state.r15]
+
+	; not complete
 
 	ret

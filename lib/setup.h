@@ -243,8 +243,6 @@ struct vmm_parameters {
 	EFI_PHYSICAL_ADDRESS ap_entry_page;
 	UINT64 bsp_address;
 	UINT64 cpu_count;
-	//EFI_PHYSICAL_ADDRESS memory_map; // actually not need it
-	//UINT64 map_size;
 };
 #pragma pack(pop)
 

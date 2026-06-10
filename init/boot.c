@@ -9,8 +9,14 @@
 #include "init/boot.h"
 #include "lib/setup.h"
 
+//EFI_GRAPHICS_OUTPUT_PROTOCOL *gop = NULL;
+//EFI_GRAPHICS_OUTPUT_BLT_PIXEL blt;
+
 static void EFIAPI __free(struct vmm_context *context,
 			  struct uefi_state_struct *uefi_state);
+
+void EFIAPI __create_painting(void);
+void EFIAPI __init_blt_pixel(void);
 
 void EFIAPI init_services(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
@@ -18,19 +24,27 @@ void EFIAPI init_services(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	gBS = SystemTable->BootServices;
 }
 
-void EFIAPI __create_painting(void)
-{
-	EFI_STATUS status;
-	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
-
-	status = gBS->LocateProtocol(&gEfiGraphicsOutputProtocolGuid, NULL,
-			    (void **)&gop);
-	if (EFI_ERROR(status)) {
-		Print(L"failed to locate protocol for graphics output protocol "
-		      L"= %r\r\n",
-		      status);
-	}
-}
+//void EFIAPI __create_painting(void)
+//{
+//	EFI_STATUS status;
+//
+//	EFI_GRAPHICS_OUTPUT_BLT_PIXEL blt;
+//
+//	status = gBS->LocateProtocol(&gEfiGraphicsOutputProtocolGuid, NULL,
+//			    (void **)&gop);
+//	if (EFI_ERROR(status)) {
+//		Print(L"failed to locate protocol for graphics output protocol "
+//		      L"= %r\r\n",
+//		      status);
+//	}
+//
+//	
+//}
+//
+//void EFIAPI __init_blt_pixel(void)
+//{
+//	
+//}
 
 static void EFIAPI __free(struct vmm_context *context,
 			  struct uefi_state_struct *uefi_state)
