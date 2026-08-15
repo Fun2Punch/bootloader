@@ -156,6 +156,8 @@ struct vmm_context {
 
 	UINT64 current_free_page;
 
+	//EFI_GRAPHICS_OUTPUT_PROTOCOL *efi_gop;
+
 	void(EFIAPI *init)(struct vmm_context *context);
 	void(EFIAPI *start)(struct vmm_context *context,
 			    struct uefi_state_struct *uefi_state);
@@ -179,6 +181,7 @@ struct vmm_context {
 	UINTN(EFIAPI *vmm_size)(EFI_FILE_PROTOCOL *vmm_img);
 	EFI_STATUS(EFIAPI *read_vmm)(struct vmm_context *context,
 				     EFI_FILE_PROTOCOL *vmm_img);
+	//void(EFIAPI *create_gop)(struct vmm_context *context);
 };
 #pragma pack(pop)
 
@@ -229,6 +232,17 @@ struct uefi_state_struct {
 	void(EFIAPI *start)(struct uefi_state_struct *uefi_state);
 	void(EFIAPI *set_registers)(struct uefi_state_struct *uefi_state);
 };
+struct extended_system_desc_table {
+	CHAR8 signature[4];
+	UINT32 len;
+	CHAR8 revision;
+	CHAR8 checksum;
+	CHAR8 oemid[6];
+	CHAR8 oem_table_id[8];
+	UINT32 oem_revision;
+	UINT32 creatorid;
+	UINT32 creator_revision;
+};
 #pragma pack(pop)
 
 #pragma pack(push, 8)
@@ -241,8 +255,11 @@ struct vmm_parameters {
 	EFI_PHYSICAL_ADDRESS extra_memory;
 	UINT64 extra_memory_size;
 	EFI_PHYSICAL_ADDRESS ap_entry_page;
-	UINT64 bsp_address;
-	UINT64 cpu_count;
+	UINT64 bsp;
+	UINT64 *ipi_address; // must be core ipi address, not cpu count
+	UINT64 core_num;
+	//EFI_ACPI_2_0_MULTIPLE_APIC_DESCRIPTION_TABLE_HEADER *madt_address;
+	//EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
 };
 #pragma pack(pop)
 
@@ -250,6 +267,5 @@ struct vmm_parameters {
 // vmm context -------------------------------------------------
 struct vmm_context *create_vmm_context(void);
 struct uefi_state_struct *create_uefi_state(void);
-struct vmm_parameters *create_vmm_parameters(void);
 
 #endif

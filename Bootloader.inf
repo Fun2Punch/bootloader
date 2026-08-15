@@ -48,6 +48,7 @@
 
 [Guids]
   gEfiFileInfoGuid
+  gEfiAcpi20TableGuid
 
 [Depex]
   TRUE
